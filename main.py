@@ -224,6 +224,43 @@ def describe_item_by_fancyname(items, query):
     return "\n".join(responses)
 
 
+def extract_organization_code(query):
+    # Extract codes like AM2, AM5, OR7, etc.
+    match = re.search(r"\b([A-Z]{2}\d{1,4})\b", query.upper())
+    return match.group(1) if match else None
+
+def is_organization_code_query(query):
+    return extract_organization_code(query) is not None
+
+def handle_organization_code_query(items, code):
+    code = code.strip().upper()
+    matched_items = [item for item in items if item.get("organization_code", "").upper() == code]
+
+    total_count = len(matched_items)
+    if total_count == 0:
+        return f"No records found for organization code {code}."
+
+    response_lines = [
+        f"{code} has **{total_count}** matching records. Some of them are given below:\n"
+    ]
+
+    # Limit to first 100 results
+    for i, item in enumerate(matched_items[:100], start=1):
+        customer = item.get("customer_name", "Unknown Customer")
+        price = item.get("selling_price", "N/A")
+        qty = item.get("quantity_meters", "N/A")
+        response_lines.append(
+            f"{i}. {customer} with selling price {price}, and quantity {qty} meters."
+        )
+
+    if total_count > 100:
+        response_lines.append(f"\nOnly 100 results shown out of {total_count}.")
+
+    response_lines.append(
+        f"\nLet me know if you'd like to know more about {code} or explore another organization code!"
+    )
+
+    return "\n".join(response_lines)
 
 
 from datetime import datetime
@@ -383,6 +420,12 @@ def answer_query_with_fallback(items, query):
     if is_sales_person_query(query): return find_items_by_field(items, "sales_person", extract_keyword(query, "sales person"))
     if is_sales_team_query(query): return find_items_by_field(items, "sales_team", extract_keyword(query, "team"))
     if is_chart_query(query): return None
+
+    # ✅ NEW: Organization code handler
+    if is_organization_code_query(query):
+        code = extract_organization_code(query)
+        return handle_organization_code_query(items, code)
+
     return find_items_by_fancyname(items, query)
 
 
