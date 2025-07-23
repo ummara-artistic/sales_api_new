@@ -405,16 +405,16 @@ def main():
             result = answer_query_with_fallback(items, query)
 
             if result:
-                st.markdown("### ✅ Answer (Manual Logic):")
+               
                 st.text(result)
             else:
-                # st.markdown("### 🤖 Answer (Groq AI):")  # HIDE THIS LINE
+           
                 response_text = ""
                 for chunk in query_llm_stream(query, {"items": items}):
                     response_text += chunk
 
-                # Skip showing raw response_text to user
-                # st.markdown(response_text)  # HIDE RAW LLM RESPONSE
+                # Show full response text regardless
+                st.markdown(response_text)
 
                 # Try to extract and execute chart code if it exists
                 code = extract_clean_python_code(response_text)
@@ -426,7 +426,7 @@ def main():
                             exec(code, {}, local_vars)
                         stdout_output = stdout_buffer.getvalue()
 
-                        # Optional: show print output if needed
+                        # Show print output if any
                         if stdout_output.strip():
                             st.markdown("#### ℹ️ Output Summary:")
                             st.text(stdout_output)
@@ -435,12 +435,9 @@ def main():
                         fig = local_vars.get("fig")
                         if fig:
                             st.plotly_chart(fig, use_container_width=True)
-                        else:
-                            st.info("ℹ️ No chart was generated.")
                     except Exception as e:
                         st.error(f"⚠️ Couldn't render chart: {e}")
-                else:
-                    st.warning("⚠️ No chart code was found in the AI response.")
+
 
 
 if __name__ == "__main__":
