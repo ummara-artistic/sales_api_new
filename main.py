@@ -60,7 +60,7 @@ If user asks for:
 - "Total sales for July"
 - "Most recent sales this year"
 Do this:
-1. Use `trx_date` from `items[]`
+1. Use `trx_date` from `items[]` = date
 2. Convert to datetime
 3. Find latest trx_date (ignore today’s system date)
 4. Filter all records for that same **month and year**
@@ -88,16 +88,16 @@ If user asks:
 - "Plot", "chart", "graph", or "visualize":
 Return a clean Python code block using Plotly or Matplotlib, showing data from `items[]`.
 
-show 20 listing for each
+
 REMEMBER:
-Should give 20 listing
+
 Show tables as newline-formatted lists
 
 Keep user question at the center of your response
-
+txr_date is use as date
 Don’t explain what you can’t do — always try to provide something useful
 
-📅 Today’s date is {datetime.now().strftime('%Y-%m-%d')}.
+📅 Today’s date is {datetime.now().strftime('%Y-%m-%d')}. 
 User asked: {prompt}
 {f"Here is some sample data:\n{json.dumps(data, indent=2)[:8000]}" if data else ""}
 """
